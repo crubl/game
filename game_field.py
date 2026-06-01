@@ -1,4 +1,4 @@
-#GameField.py
+#game_field.py
 
 import pygame as pg
 

@@ -34,4 +34,4 @@ class Ground():
 
 # Тестовый запуск
 if __name__ == "__main__":
-    game = Ground("/Users/kazak/VS Code/Codes/game/Poly/sprites/ground.webp")
+    game = Ground("./Poly/sprites/ground.webp")

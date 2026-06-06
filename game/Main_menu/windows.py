@@ -1,5 +1,5 @@
 import pygame
-from Buttons import Button
+from Main_menu.Buttons import Button
 
 WIDTH, HEIGHT = 800,600
 

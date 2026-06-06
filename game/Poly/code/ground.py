@@ -1,5 +1,25 @@
 import pygame as pg
 
+import os
+
+def load_image(path, convert_alpha=True):
+    """Универсальная загрузка изображений"""
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    full_path = os.path.join(base_dir, path)
+    
+    try:
+        if convert_alpha:
+            return pg.image.load(full_path).convert_alpha()
+        else:
+            return pg.image.load(full_path).convert()
+    except FileNotFoundError:
+        print(f"Не удалось загрузить изображение: {full_path}")
+        # Возвращаем заглушку
+        surf = pg.Surface((100, 100))
+        surf.fill((255, 0, 255))  # Розовый цвет для отладки
+        return surf
+    
+
 pg.init()
 
 class Ground():
@@ -11,8 +31,8 @@ class Ground():
         pg.display.set_caption("Vampire Survivors")
         
         # Загрузка спрайта земли
-        self.ground_sprite = pg.image.load("./Poly/sprites/ground.webp").convert_alpha()
-        
+        self.ground_sprite = load_image("sprites/ground.webp")
+
         # Размеры тайла (если тайлим)
         self.tile_width = self.ground_sprite.get_width()
         self.tile_height = self.ground_sprite.get_height()

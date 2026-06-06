@@ -13,6 +13,9 @@ DimGray = (105, 105, 105)
 Gainsboro = (220, 220, 220)
 Black = (0, 0, 0)
 
+#font_title = pg.font.Font(None, 74)
+#font_button = pg.font.Font(None, 48)
+
 
 class Game:
 

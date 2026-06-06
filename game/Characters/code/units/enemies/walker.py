@@ -10,7 +10,7 @@ class Walker(Unit):
         #Параметры по умолчанию
         #Параметры спрайта
         self.screen = screen
-        self.image = pg.image.load("./Characters/sprites/enemies/spritepaint.png")
+        self.image = pg.image.load(r"C:\Users\бла бла\Documents\GitHub\game\game\Characters\sprites\enemies/spritepaint.png")
         self.rect = self.image.get_rect()
         self.rect.x = self.hero.rect.x + 500
         self.rect.y = self.hero.rect.y + 500

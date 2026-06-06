@@ -20,7 +20,7 @@ class Button:
         self.hover_color = hover_color
         self.is_hovered = False
 
-    def draw(self, screen):
+    def draw(self, screen, font):
         #выбор цвета при наведении
         color = self.hover_color if self.is_hovered else self.color
 

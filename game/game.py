@@ -73,8 +73,6 @@ class Game:
             self.screen_manager.draw_menu()
         elif self.current_state == "shop":
             self.screen_manager.draw_shop()
-        elif self.current_state == "quit":
-            running = False
         elif self.current_state == "game":
             self.ground.render()
             self.allSprites.draw(self.screen)

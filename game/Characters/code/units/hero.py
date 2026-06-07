@@ -10,7 +10,7 @@ class Warrior(Unit):
         #Параметры по умолчанию
         #Параметры спрайта
         self.screen = screen
-        self.image = pg.image.load("./Characters/sprites/hero/hero.png")
+        self.image = pg.image.load(r"C:\Users\бла бла\Documents\GitHub\game\game\Characters\sprites\hero\hero.png")    
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y

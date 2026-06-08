@@ -17,8 +17,9 @@ class Warrior(Unit):
     def __init__(self, x, y, screen, game_field):
         super().__init__(x, y)
         self.screen = screen
-        self.image = pg.image.load(r"C:\Users\бла бла\Documents\GitHub\game\game\Characters\sprites\hero\hero.png")    
+        self.image = pg.image.load(SPRITE_PATH)    
         self.rect = self.image.get_rect()
+        self.game_field = game_field
         
         # ==================== КООРДИНАТЫ ====================
         self.x = x

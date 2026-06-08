@@ -11,7 +11,7 @@ class Ground():
         pg.display.set_caption("Vampire Survivors")
         
         # Загрузка спрайта земли
-        path = r"C:\Users\бла бла\Documents\GitHub\game\game\Poly\sprites\ground.webp"
+        path = r"game/Poly/sprites/ground.webp"
         self.ground_sprite = pg.image.load(path).convert_alpha()
         
         # Размеры тайла (если тайлим)

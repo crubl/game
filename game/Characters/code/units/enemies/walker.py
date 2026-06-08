@@ -15,7 +15,7 @@ class Walker(Unit):
         super().__init__(x, y)
         self.hero = hero      # ссылка на игрока (нужна для ИИ)
         self.screen = screen
-        self.image = pg.image.load(r"C:\Users\бла бла\Documents\GitHub\game\game\Characters\sprites\enemies/spritepaint.png")
+        self.image = pg.image.load(SPRITE_PATH)
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y

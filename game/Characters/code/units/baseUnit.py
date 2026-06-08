@@ -4,53 +4,53 @@ import pygame as pg
 
 
 class Unit(pg.sprite.Sprite, ABC):
-    #Координаты создания
+    """Абстрактный базовый класс для всех юнитов (игрок, враги)"""
+    
     def __init__(self, x, y):
-
-        #Параметры по умолчанию
-        #Праметры спрайта
         pg.sprite.Sprite.__init__(self)
         self.rect = None
         self.image = None
-
-        #Не боевые статы
-        self.level = 1
-        self.health = 100
-        self.speed = 50
-
-        #боевые статы
-        self.damage = 25
-        self.critChance = 0.05
-        self.critMod = 1.5
+        
+        # Координаты (нужны для камеры)
+        self.x = x
+        self.y = y
+        
+        # ==================== ХАРАКТЕРИСТИКИ ====================
+        self.level = 1          # уровень юнита
+        self.health = 100       # текущее здоровье
+        self.speed = 50         # скорость передвижения (пикселей/сек)
+        
+        # ==================== БОЕВЫЕ ХАРАКТЕРИСТИКИ ====================
+        self.damage = 25            # базовый урон
+        self.critChance = 0.05      # шанс крита (5%)
+        self.critMod = 1.5          # множитель крита (150%)
 
     @abstractmethod
-    def update(self): #изменения кадра
+    def update(self, dt):
+        """Обновление состояния юнита"""
         pass
 
     @abstractmethod
-    def death(self): #смерть
+    def death(self):
+        """Обработка смерти юнита"""
         pass
 
     @abstractmethod
-    def move(self): #движение юнита в зависимости от вида
+    def move(self, dt):
+        """Логика движения юнита"""
         pass
 
-    def getDamage(self): #получение урона
-
+    def getDamage(self):
+        """Получение урона юнитом"""
         damage = self.damageMod()
         self.health -= damage
-
         if self.health <= 0:
             self.death()
-        
-    # @abstractmethod
-    # def getPosition(self):
-    #     return (self.x, self.y)
-
-    def damageMod(self): #подсчет урона
-
-        isCritDamage = rd.random() > self.critChance
-
+        return damage
+    
+    def damageMod(self):
+        """Расчёт урона с учётом шанса крита"""
+        isCritDamage = rd.random() < self.critChance
         if isCritDamage:
             return self.damage * self.critMod
         else:

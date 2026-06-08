@@ -1,49 +1,135 @@
-# game.py
 import pygame as pg
 
-from Poly.code.ground import Ground
+# Проверяем, инициализированы ли шрифты
+if not pg.font.get_init():
+    pg.font.init()
+
+# Остальные импорты
+import os
+from Poly.code.game_field import GameField
 from Characters.code.units.hero import Warrior
 from Characters.code.units.enemies.walker import Walker
-from Characters.code.units.baseUnit import Unit
+from Main_menu.windows import ScreenManager
+
+# Меняем рабочую директорию
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
+
+# ==================== НАСТРОЙКИ ====================
+SCREEN_WIDTH = 1200
+SCREEN_HEIGHT = 800
+GAME_TITLE = "Vampire Survivors"
+
 
 class Game:
+    """Основной класс игры с меню и самой игрой"""
 
     def __init__(self):
-        #Параметры игры
-        self.screen = pg.display.set_mode((1200, 800))
+        # ==================== ПАРАМЕТРЫ ИГРЫ ====================
+        self.screen = pg.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         self.clock = pg.time.Clock()
-    
-        #Объекты
-        self.allSprites = pg.sprite.Group()
-        self.ground = Ground(self.screen)
-        self.hero = Warrior(self.screen.get_size()[0] // 2, self.screen.get_size()[1] // 2, self.screen)
-        self.enemy = Walker(0, 0, self.hero, self.screen)
-        self.allSprites.add(self.hero)
-        self.allSprites.add(self.enemy)
+        self.running = True
+        self.current_state = "menu"  # menu, game, shop
 
-    #Обработка событий
-    def handleEvents(self):
+        # ==================== ШРИФТЫ ДЛЯ МЕНЮ ====================
+        self.font_title = pg.font.Font(None, 74)
+        self.font_button = pg.font.Font(None, 48)
+
+        # ==================== МЕНЮ ====================
+        self.screen_manager = ScreenManager(
+            self.screen, SCREEN_WIDTH, SCREEN_HEIGHT,
+            self.font_title, self.font_button
+        )
+
+        # ==================== ИГРОВЫЕ ОБЪЕКТЫ ====================
+        self.game_field = None   # будет создан при запуске игры
+        self.hero = None
+
+    def start_game(self):
+        """Запускает новую игру (создаёт поле и игрока)"""
+        # Создаём игровое поле
+        self.game_field = GameField(self.screen)
+        
+        # Создаём игрока в центре мира
+        self.hero = Warrior(
+            self.game_field.world_width // 2,
+            self.game_field.world_height // 2,
+            self.screen,
+            self.game_field
+        )
+        
+        # Передаём игрока в поле
+        self.game_field.set_player(self.hero)
+
+    def stop_game(self):
+        """Останавливает игру (очищает поле)"""
+        self.game_field = None
+        self.hero = None
+
+    def handle_events(self):
+        """Обработка событий (меню и игра)"""
         for event in pg.event.get():
             if event.type == pg.QUIT:
-                return False
-        return True
-    
-    #Изменение кадра
+                self.running = False
+                return
+
+            # ==================== ОБРАБОТКА МЕНЮ ====================
+            if self.current_state == "menu":
+                action = self.screen_manager.handle_menu_events(event)
+                if action == "quit":
+                    self.running = False
+                elif action == "game":
+                    self.current_state = "game"
+                    self.start_game()  # создаём игровое поле
+                elif action == "shop":
+                    self.current_state = "shop"
+
+            # ==================== ОБРАБОТКА МАГАЗИНА ====================
+            elif self.current_state == "shop":
+                action = self.screen_manager.handle_back_event(event)
+                if action == "menu":
+                    self.current_state = "menu"
+
+            # ==================== ОБРАБОТКА ИГРЫ ====================
+            elif self.current_state == "game":
+                # Проверяем, не закрыли ли игру
+                if event.type == pg.KEYDOWN:
+                    if event.key == pg.K_ESCAPE:
+                        self.current_state = "menu"
+                        self.stop_game()  # очищаем поле
+
+                # Передаём события в игру (если нужно)
+                if self.game_field:
+                    self.game_field.handle_events()
+
     def update(self, dt):
-        self.allSprites.update(dt)
-    
-    #Прорисовка кадра
+        """Обновление состояния в зависимости от текущего экрана"""
+        if self.current_state == "game" and self.game_field:
+            self.game_field.update(dt)
+
     def draw(self):
-        self.ground.render()
-        self.allSprites.draw(self.screen)
+        """Отрисовка в зависимости от текущего экрана"""
+        if self.current_state == "menu":
+            self.screen_manager.draw_menu()
+        elif self.current_state == "shop":
+            self.screen_manager.draw_shop()
+        elif self.current_state == "game" and self.game_field:
+            self.game_field.draw()
+        
         pg.display.flip()
-    
-    #Запуск игры
+
     def run(self):
-        running = True
-        while running:
-            dt = self.clock.tick(60) / 1000.0
-            running = self.handleEvents()
+        """Главный игровой цикл"""
+        dt = 0.0
+        while self.running:
+            self.handle_events()
             self.update(dt)
             self.draw()
+            dt = self.clock.tick(60) / 1000.0
         pg.quit()
+
+
+# ==================== ТОЧКА ВХОДА ====================
+if __name__ == "__main__":
+    pg.init()
+    game = Game()
+    game.run()

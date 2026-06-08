@@ -17,17 +17,7 @@ class Warrior(Unit):
     def __init__(self, x, y, screen, game_field):
         super().__init__(x, y)
         self.screen = screen
-        self.game_field = game_field
-        
-        # ==================== ЗАГРУЗКА СПРАЙТА ====================
-        try:
-            self.image = pg.image.load(SPRITE_PATH).convert_alpha()
-        except:
-            # Если спрайт не найден — создаём временный квадрат
-            print(f"ВНИМАНИЕ: Спрайт игрока не найден по пути {SPRITE_PATH}")
-            self.image = pg.Surface((30, 30))
-            self.image.fill((0, 200, 255))
-        
+        self.image = pg.image.load(r"C:\Users\бла бла\Documents\GitHub\game\game\Characters\sprites\hero\hero.png")    
         self.rect = self.image.get_rect()
         
         # ==================== КООРДИНАТЫ ====================

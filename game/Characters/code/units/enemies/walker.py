@@ -15,20 +15,7 @@ class Walker(Unit):
         super().__init__(x, y)
         self.hero = hero      # ссылка на игрока (нужна для ИИ)
         self.screen = screen
-        
-        # ==================== КООРДИНАТЫ ====================
-        self.x = x
-        self.y = y
-        
-        # ==================== ЗАГРУЗКА СПРАЙТА ====================
-        try:
-            self.image = pg.image.load(SPRITE_PATH).convert_alpha()
-        except:
-            # Если спрайт не найден — создаём временный квадрат
-            print(f"ВНИМАНИЕ: Спрайт врага не найден по пути {SPRITE_PATH}")
-            self.image = pg.Surface((20, 20))
-            self.image.fill((255, 0, 0))
-        
+        self.image = pg.image.load(r"C:\Users\бла бла\Documents\GitHub\game\game\Characters\sprites\enemies/spritepaint.png")
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y

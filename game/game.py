@@ -18,6 +18,17 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 SCREEN_WIDTH = 1200
 SCREEN_HEIGHT = 800
 GAME_TITLE = "Vampire Survivors"
+from Characters.code.units.baseUnit import Unit
+from Main_menu.windows import ScreenManager
+
+DeepSkyBlue = (0, 191, 255)
+Gray = (128, 128, 128)
+DimGray = (105, 105, 105)
+Gainsboro = (220, 220, 220)
+Black = (0, 0, 0)
+
+#font_title = pg.font.Font(None, 74)
+#font_button = pg.font.Font(None, 48)
 
 
 class Game:
@@ -126,10 +137,3 @@ class Game:
             self.draw()
             dt = self.clock.tick(60) / 1000.0
         pg.quit()
-
-
-# ==================== ТОЧКА ВХОДА ====================
-if __name__ == "__main__":
-    pg.init()
-    game = Game()
-    game.run()

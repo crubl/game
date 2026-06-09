@@ -239,12 +239,3 @@ class GameField:
                 elif event.key == pg.K_F2:
                     self.show_grid = not self.show_grid
     
-    def run(self):
-        """Главный игровой цикл"""
-        dt = 0.0
-        while self.running:
-            self.handle_events()
-            self.update(dt)
-            self.draw()
-            dt = self.clock.tick(60) / 1000.0
-        pg.quit()

@@ -1,4 +1,3 @@
-# main.py
 import subprocess
 import sys
 from game import Game

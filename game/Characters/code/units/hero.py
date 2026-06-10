@@ -1,15 +1,7 @@
 from Characters.code.units.baseUnit import Unit
+from constans import *
 import pygame as pg
 
-# ==================== НЕ БОЕВЫЕ СТАТЫ ====================
-PLAYER_SPEED = 300          # скорость передвижения (пикселей/сек)
-PLAYER_HEALTH = 750         # максимальное здоровье
-
-# ==================== БОЕВЫЕ СТАТЫ =======================
-PLAYER_DAMAGE = 150         # базовый урон
-
-# ==================== ПАРАМЕТРЫ СПРАЙТА ==================
-SPRITE_PATH = "./Characters/sprites/hero/hero.png"
 
 
 class Warrior(Unit):
@@ -21,16 +13,22 @@ class Warrior(Unit):
         self.rect = self.image.get_rect()
         self.game_field = game_field
         
-        # ==================== КООРДИНАТЫ ====================
+        # ==================== Координаты ====================
         self.x = x
         self.y = y
         self.rect.x = x
         self.rect.y = y
         
-        # ==================== ХАРАКТЕРИСТИКИ ====================
-        self.health = PLAYER_HEALTH
-        self.speed = PLAYER_SPEED
-        self.damage = PLAYER_DAMAGE
+        # ==================== Характеристики ====================
+        self.level = 1
+        self.maxHealth = 750
+        self.health = self.maxHealth
+        self.speed = 300
+        self.damage = 100
+        self.critChance = 0.05      # шанс крита (5%)
+        self.critMod = 1.5          # множитель крита (150%)
+
+        # ==================== Спрайт ====================
         self.size = self.image.get_width()
     
     def update(self, dt):
@@ -85,10 +83,10 @@ class Warrior(Unit):
         
         screen.blit(self.image, (draw_x, draw_y))
         
-        # ==================== ПОЛОСКА ЗДОРОВЬЯ ====================
+        # ==================== Полоска здоровья ====================
         bar_width = 40
         bar_height = 6
-        health_percent = self.health / PLAYER_HEALTH
+        health_percent = self.health / self.maxHealth
         bar_x = screen_pos[0] - bar_width // 2
         bar_y = screen_pos[1] - self.image.get_height() // 2 - 10
         
@@ -96,11 +94,6 @@ class Warrior(Unit):
         pg.draw.rect(screen, (60, 60, 60), (bar_x, bar_y, bar_width, bar_height))
         # Здоровье
         pg.draw.rect(screen, (0, 255, 0), (bar_x, bar_y, bar_width * health_percent, bar_height))
-        
-        # ==================== ОТЛАДОЧНЫЙ КРУЖОК ====================
-        # Показывает центр игрока (для проверки камеры)
-        pg.draw.circle(screen, (255, 255, 255), 
-                      (int(screen_pos[0]), int(screen_pos[1])), 3)
     
     def get_rect(self):
         """Возвращает прямоугольник для коллизий"""

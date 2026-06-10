@@ -5,7 +5,6 @@ import pygame as pg
 
 class Unit(pg.sprite.Sprite, ABC):
     """Абстрактный базовый класс для всех юнитов (игрок, враги)"""
-    
     def __init__(self, x, y):
         pg.sprite.Sprite.__init__(self)
         self.rect = None
@@ -15,15 +14,10 @@ class Unit(pg.sprite.Sprite, ABC):
         self.x = x
         self.y = y
         
-        # ==================== ХАРАКТЕРИСТИКИ ====================
-        self.level = 1          # уровень юнита
+        # ==================== Характеристики ====================
         self.health = 100       # текущее здоровье
         self.speed = 50         # скорость передвижения (пикселей/сек)
-        
-        # ==================== БОЕВЫЕ ХАРАКТЕРИСТИКИ ====================
         self.damage = 25            # базовый урон
-        self.critChance = 0.05      # шанс крита (5%)
-        self.critMod = 1.5          # множитель крита (150%)
 
     @abstractmethod
     def update(self, dt):
@@ -40,18 +34,20 @@ class Unit(pg.sprite.Sprite, ABC):
         """Логика движения юнита"""
         pass
 
+    @abstractmethod
     def getDamage(self):
-        """Получение урона юнитом"""
-        damage = self.damageMod()
-        self.health -= damage
-        if self.health <= 0:
-            self.death()
-        return damage
+        pass
+        # """Получение урона юнитом"""
+        # damage = self.damageMod()
+        # self.health -= damage
+        # if self.health <= 0:
+        #     self.death()
+        # return damage
     
-    def damageMod(self):
-        """Расчёт урона с учётом шанса крита"""
-        isCritDamage = rd.random() < self.critChance
-        if isCritDamage:
-            return self.damage * self.critMod
-        else:
-            return self.damage
+    # def damageMod(self):
+    #     """Расчёт урона с учётом шанса крита"""
+    #     isCritDamage = rd.random() < self.critChance
+    #     if isCritDamage:
+    #         return self.damage * self.critMod
+    #     else:
+    #         return self.damage

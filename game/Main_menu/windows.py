@@ -1,44 +1,33 @@
 import pygame
 from Main_menu.Buttons import Button
-
-WIDTH, HEIGHT = 800,600
-
-DeepSkyBlue = (0, 191, 255)
-Gray = (128, 128, 128)
-DimGray = (105, 105, 105)
-Gainsboro = (220, 220, 220)
-Black = (0, 0, 0)
-
-# Шрифты
-font_title = pygame.font.Font(None, 74)
-font_button = pygame.font.Font(None, 48)
+from constans import *
 
 class ScreenManager: #класс для отрисовки кнопок
 
-    def __init__(self, screen, width, height, font_title, font_button):
+    def __init__(self, screen, width, height):
         self.screen = screen
         self.width = width
         self.height = height
-        self.font_title = font_title
-        self.font_button = font_button
+        self.font_title = pygame.font.Font(None, 74)
+        self.font_button = pygame.font.Font(None, 48)
 
         self.menu_buttons = [
-        Button(WIDTH//10, 200, 200, 60, "PLAY", DimGray, Gainsboro, "game"),
+        Button(SCREEN_WIDTH//10, 200, 200, 60, "PLAY", DIM_GRAY, GAINSBORO, "game"),
 
-        Button(WIDTH//10, 300, 200, 60, "SHOP", DimGray, Gainsboro, "shop"),
+        Button(SCREEN_WIDTH//10, 300, 200, 60, "SHOP", DIM_GRAY, GAINSBORO, "shop"),
 
-        Button(WIDTH//10, 400, 200, 60, "QUIT", DimGray, Gainsboro, "quit")
+        Button(SCREEN_WIDTH//10, 400, 200, 60, "QUIT", DIM_GRAY, GAINSBORO, "quit")
     ]
-        self.Back_Key = Button(WIDTH // 2 - 100, HEIGHT - 100, 200, 50,
-    "Назад в меню", Gray, Gainsboro, "menu")
+        self.Back_Key = Button(SCREEN_WIDTH // 2 - 100, SCREEN_HEIGHT - 100, 200, 50,
+                                "Назад в меню", GRAY, GAINSBORO, "menu")
         
     def draw_menu(self): #отрисовка главного меню
 
-        self.screen.fill(DeepSkyBlue)
+        self.screen.fill(DEEP_SKY_BLUE)
 
         #отрисовка названия игры
-        title = font_title.render("МОЯ ИГРА", True, Gray)
-        title_rect = title.get_rect(center=(WIDTH//5, 100))
+        title = self.font_title.render("МОЯ ИГРА", True, GRAY)
+        title_rect = title.get_rect(center=(SCREEN_WIDTH//5, 100))
         self.screen.blit(title, title_rect)
 
         for button in self.menu_buttons:
@@ -46,7 +35,7 @@ class ScreenManager: #класс для отрисовки кнопок
 
     def draw_shop(self):
 
-        self.screen.fill(Black)
+        self.screen.fill(BLACK)
 
         self.Back_Key.draw(self.screen, self.font_button)
 

@@ -1,13 +1,7 @@
 from Characters.code.units.baseUnit import Unit
+from constans import *
 import pygame as pg
 import math
-
-# ==================== НАСТРОЙКИ ВРАГА ====================
-WALKER_HEALTH = 50          # здоровье ходока
-WALKER_SPEED = 80           # скорость передвижения
-WALKER_DAMAGE = 10          # урон при столкновении
-SPRITE_PATH = "./Characters/sprites/enemies/spritepaint.png"
-
 
 class Walker(Unit):
     
@@ -15,15 +9,18 @@ class Walker(Unit):
         super().__init__(x, y)
         self.hero = hero      # ссылка на игрока (нужна для ИИ)
         self.screen = screen
+
+        # ==================== Спрайт ====================
         self.image = pg.image.load(SPRITE_PATH)
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
         
-        # ==================== ХАРАКТЕРИСТИКИ ====================
-        self.health = WALKER_HEALTH
-        self.speed = WALKER_SPEED
-        self.damage = WALKER_DAMAGE
+        # ==================== Характеристики ====================
+        self.maxHealth = 50
+        self.health = self.maxHealth
+        self.speed = 150
+        self.damage = 80
     
     def update(self, dt):
         """Обновление врага каждый кадр"""
@@ -62,7 +59,7 @@ class Walker(Unit):
         # ==================== ПОЛОСКА ЗДОРОВЬЯ ====================
         bar_width = 30
         bar_height = 4
-        health_percent = self.health / WALKER_HEALTH
+        health_percent = self.health / self.maxHealth
         bar_x = screen_pos[0] - bar_width // 2
         bar_y = screen_pos[1] - self.image.get_height() // 2 - 6
         

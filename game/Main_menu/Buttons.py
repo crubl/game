@@ -1,14 +1,8 @@
+from constans import *
 import pygame
 
-DeepSkyBlue = (0, 191, 255)
-Gray = (128, 128, 128)
-DimGray = (105, 105, 105)
-Gainsboro = (220, 220, 220)
-Black = (0, 0, 0)
-
 # Шрифты
-font_title = pygame.font.Font(None, 74)
-font_button = pygame.font.Font(None, 48)
+
 
 class Button:
     
@@ -19,6 +13,8 @@ class Button:
         self.action = action
         self.hover_color = hover_color
         self.is_hovered = False
+        self.font_title = pygame.font.Font(None, 74)
+        self.font_button = pygame.font.Font(None, 48)
 
     def draw(self, screen, font):
         #выбор цвета при наведении
@@ -28,7 +24,7 @@ class Button:
         pygame.draw.rect(screen, color, self.key)
 
         #текст на кнопке
-        text_surface = font_button.render(self.text, True, (0,0,0))
+        text_surface = self.font_button.render(self.text, True, (0,0,0))
         text_rect = text_surface.get_rect(center = self.key.center)
         screen.blit(text_surface, text_rect)
 

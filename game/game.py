@@ -1,57 +1,36 @@
-import pygame as pg
-
-# Проверяем, инициализированы ли шрифты
-if not pg.font.get_init():
-    pg.font.init()
-
-# Остальные импорты
-import os
-from Poly.code.game_field import GameField
-from Characters.code.units.hero import Warrior
 from Characters.code.units.enemies.walker import Walker
+from Characters.code.units.baseUnit import Unit
+from Characters.code.units.hero import Warrior
 from Main_menu.windows import ScreenManager
-
+from Poly.code.game_field import GameField
+from constans import *
+import pygame as pg
+import os
 # Меняем рабочую директорию
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
-
-# ==================== НАСТРОЙКИ ====================
-SCREEN_WIDTH = 1200
-SCREEN_HEIGHT = 800
-GAME_TITLE = "Vampire Survivors"
-from Characters.code.units.baseUnit import Unit
-from Main_menu.windows import ScreenManager
-
-DeepSkyBlue = (0, 191, 255)
-Gray = (128, 128, 128)
-DimGray = (105, 105, 105)
-Gainsboro = (220, 220, 220)
-Black = (0, 0, 0)
-
-#font_title = pg.font.Font(None, 74)
-#font_button = pg.font.Font(None, 48)
+#запуск шрифтов
+pg.font.init()
 
 
 class Game:
     """Основной класс игры с меню и самой игрой"""
-
     def __init__(self):
-        # ==================== ПАРАМЕТРЫ ИГРЫ ====================
+        # ==================== Параметры игры ====================
         self.screen = pg.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         self.clock = pg.time.Clock()
         self.running = True
         self.current_state = "menu"  # menu, game, shop
 
-        # ==================== ШРИФТЫ ДЛЯ МЕНЮ ====================
+        # ==================== Шрифты ====================
         self.font_title = pg.font.Font(None, 74)
         self.font_button = pg.font.Font(None, 48)
 
-        # ==================== МЕНЮ ====================
+        # ==================== Меню ====================
         self.screen_manager = ScreenManager(
             self.screen, SCREEN_WIDTH, SCREEN_HEIGHT,
-            self.font_title, self.font_button
         )
 
-        # ==================== ИГРОВЫЕ ОБЪЕКТЫ ====================
+        # ==================== Игроые объекты ====================
         self.game_field = None   # будет создан при запуске игры
         self.hero = None
 
@@ -83,7 +62,7 @@ class Game:
                 self.running = False
                 return
 
-            # ==================== ОБРАБОТКА МЕНЮ ====================
+            # ==================== Обработка меню ====================
             if self.current_state == "menu":
                 action = self.screen_manager.handle_menu_events(event)
                 if action == "quit":
@@ -94,13 +73,13 @@ class Game:
                 elif action == "shop":
                     self.current_state = "shop"
 
-            # ==================== ОБРАБОТКА МАГАЗИНА ====================
+            # ==================== Обработка магазина ====================
             elif self.current_state == "shop":
                 action = self.screen_manager.handle_back_event(event)
                 if action == "menu":
                     self.current_state = "menu"
 
-            # ==================== ОБРАБОТКА ИГРЫ ====================
+            # ==================== Обработка игры ====================
             elif self.current_state == "game":
                 # Проверяем, не закрыли ли игру
                 if event.type == pg.KEYDOWN:

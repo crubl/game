@@ -31,5 +31,5 @@ WORLD_HEIGHT = 1800
 GROUND_SPRITE_PATH = "./Poly/sprites/ground.webp"
 
 # ==================== Спавн врагов ===================
-SPAWN_DELAY = 2.0
-MAX_ENEMIES = 10
+SPAWN_DELAY = 1.0
+MAX_ENEMIES = 1000

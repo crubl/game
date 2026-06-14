@@ -6,13 +6,16 @@ import pygame as pg
 class Unit(pg.sprite.Sprite, ABC):
     """Абстрактный базовый класс для всех юнитов (игрок, враги)"""
     def __init__(self, x, y):
+        # ==================== Спрайт ====================
         pg.sprite.Sprite.__init__(self)
         self.rect = None
         self.image = None
+        self.radius = 20
         
         # Координаты (нужны для камеры)
         self.x = x
         self.y = y
+
         
         # ==================== Характеристики ====================
         self.health = 100       # текущее здоровье
@@ -37,17 +40,3 @@ class Unit(pg.sprite.Sprite, ABC):
     @abstractmethod
     def getDamage(self):
         pass
-        # """Получение урона юнитом"""
-        # damage = self.damageMod()
-        # self.health -= damage
-        # if self.health <= 0:
-        #     self.death()
-        # return damage
-    
-    # def damageMod(self):
-    #     """Расчёт урона с учётом шанса крита"""
-    #     isCritDamage = rd.random() < self.critChance
-    #     if isCritDamage:
-    #         return self.damage * self.critMod
-    #     else:
-    #         return self.damage

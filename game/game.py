@@ -49,6 +49,7 @@ class Game:
         
         # Передаём игрока в поле
         self.game_field.set_player(self.hero)
+        self.game_field.creatMap(self.hero)
 
     def stop_game(self):
         """Останавливает игру (очищает поле)"""

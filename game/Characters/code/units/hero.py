@@ -1,7 +1,7 @@
 from Characters.code.units.baseUnit import Unit
 from constans import *
 import pygame as pg
-
+import random as rd
 
 
 class Warrior(Unit):
@@ -9,21 +9,22 @@ class Warrior(Unit):
     def __init__(self, x, y, screen, game_field):
         super().__init__(x, y)
         self.screen = screen
-        self.image = pg.image.load(SPRITE_PATH)    
-        self.rect = self.image.get_rect()
+        self.image = pg.image.load(SPRITE_PATH).convert_alpha()   
+        self.mask = pg.mask.from_surface(self.image)  
+        self.radius = 25
+        self.rect = self.image.get_rect(center=(x, y))
         self.game_field = game_field
         
         # ==================== Координаты ====================
         self.x = x
         self.y = y
-        self.rect.x = x
-        self.rect.y = y
-        
+
         # ==================== Характеристики ====================
         self.level = 1
         self.maxHealth = 750
         self.health = self.maxHealth
         self.speed = 300
+        self.radiusExp = 10
         self.damage = 100
         self.critChance = 0.05      # шанс крита (5%)
         self.critMod = 1.5          # множитель крита (150%)
@@ -38,7 +39,7 @@ class Warrior(Unit):
     def death(self):
         """Смерть игрока — пока заглушка"""
         pass
-    
+
     def move(self, dt):
         """Движение игрока (WASD или стрелки)"""
         keys = pg.key.get_pressed()
@@ -69,8 +70,7 @@ class Warrior(Unit):
         self.y = max(20, min(self.y, self.game_field.world_height - 20))
         
         # Обновляем rect для коллизий
-        self.rect.x = self.x
-        self.rect.y = self.y
+        self.rect.center = (self.x, self.y)
     
     def draw(self, screen, camera):
         """Отрисовка игрока с учётом камеры"""
@@ -106,3 +106,11 @@ class Warrior(Unit):
         if self.health <= 0:
             self.death()
         return damage
+    
+    def damageMod(self):
+        """Расчёт урона с учётом шанса крита"""
+        isCritDamage = rd.random() < self.critChance
+        if isCritDamage:
+            return self.damage * self.critMod
+        else:
+            return self.damage

@@ -3,6 +3,7 @@ from Characters.code.units.baseUnit import Unit
 from Characters.code.units.hero import Warrior
 from Main_menu.windows import ScreenManager
 from Poly.code.game_field import GameField
+from Main_menu.shop import Shop
 from constans import *
 import pygame as pg
 import os
@@ -24,15 +25,27 @@ class Game:
         # ==================== Шрифты ====================
         self.font_title = pg.font.Font(None, 74)
         self.font_button = pg.font.Font(None, 48)
-
-        # ==================== Меню ====================
-        self.screen_manager = ScreenManager(
-            self.screen, SCREEN_WIDTH, SCREEN_HEIGHT,
-        )
-
+        self.font_small = pg.font.Font(None, 36)
+        
+        
+        
         # ==================== Игроые объекты ====================
         self.game_field = None   # будет создан при запуске игры
         self.hero = None
+        self.shop = Shop()
+
+        # ==================== Меню ====================
+        self.screen_manager = ScreenManager(
+            self.screen, 
+            SCREEN_WIDTH, 
+            SCREEN_HEIGHT,
+            self.font_title, 
+            self.font_button, 
+            self.font_small,
+            self.shop  
+        )
+
+        
 
     def start_game(self):
         """Запускает новую игру (создаёт поле и игрока)"""
@@ -50,10 +63,18 @@ class Game:
         # Передаём игрока в поле
         self.game_field.set_player(self.hero)
 
+        # СОЗДАЁМ МАГАЗИН ПОСЛЕ ГЕРОЯ
+        self.shop = Shop(self.hero)
+        
+        # ОБНОВЛЯЕМ МЕНЕДЖЕР ЭКРАНОВ С МАГАЗИНОМ
+        self.screen_manager.set_shop(self.shop)
+        self.screen_manager.create_shop_buttons(self.shop)
+
     def stop_game(self):
         """Останавливает игру (очищает поле)"""
         self.game_field = None
-        self.hero = None
+        #self.hero = None
+        #self.shop = None
 
     def handle_events(self):
         """Обработка событий (меню и игра)"""
@@ -65,17 +86,25 @@ class Game:
             # ==================== Обработка меню ====================
             if self.current_state == "menu":
                 action = self.screen_manager.handle_menu_events(event)
+                
+
                 if action == "quit":
                     self.running = False
                 elif action == "game":
                     self.current_state = "game"
                     self.start_game()  # создаём игровое поле
                 elif action == "shop":
-                    self.current_state = "shop"
-
+                    if self.shop is None:
+                        print("Сначала начните игру (нажмите PLAY)!")
+                    else:
+                        self.current_state = "shop"
+                        
             # ==================== Обработка магазина ====================
             elif self.current_state == "shop":
-                action = self.screen_manager.handle_back_event(event)
+                
+                action = self.screen_manager.shop_back_button.handle_event(event)
+                success, result = self.screen_manager.handle_shop_events(event)
+                #print(f"Результат: {success}, {result}")
                 if action == "menu":
                     self.current_state = "menu"
 

@@ -65,9 +65,9 @@ class Walker(Unit):
         draw_y = screen_pos[1] - self.image.get_height() // 2
         screen.blit(self.image, (draw_x, draw_y))
         
-    def getDamage(self):
+    def getDamage(self, damage):
         """Получение урона от игрока"""
-        damage = self.hero.damageMod()
+        damage = damage
         self.health -= damage
         if self.health <= 0:
             self.death()

@@ -163,6 +163,25 @@ class GameField:
                 if enemy.health <= 0:
                     self.enemies.remove(enemy)
             
+            if hasattr(self.player, 'weapon') and self.player.weapon:
+                for effect, hitbox in self.player.weapon.getActiveHitboxes():
+                    for enemy in self.enemies:
+                        if enemy.health <= 0:
+                            continue
+                        if hitbox.colliderect(enemy.rect):
+                            # Проверяем, можно ли нанести урон (например, один раз за эффект)
+                            if hasattr(effect, 'onHitEnemy'):
+                                if not effect.onHitEnemy(enemy):
+                                    continue
+                            # Рассчитываем урон (можно взять из оружия + крит)
+                            damage = self.player.weapon.damage
+                            # Добавим случайный крит (если есть параметры)
+                            if hasattr(self.player.weapon, 'critChance') and hasattr(self.player.weapon, 'critMultiplier'):
+                                import random
+                                if random.random() < self.player.weapon.critChance:
+                                    damage = int(damage * self.player.weapon.critMultiplier)
+                            enemy.getDamage(damage)
+
             #Очищаем и перестраиваем сетку
             self.map.clear()
             self.map.add(self.player)
@@ -171,17 +190,18 @@ class GameField:
                     self.map.add(enemy)
             
             nearby = self.map.getNearby(self.player)
-            colliding_pairs = []
+            collidingPairs = []
             for unit in nearby:
                 if unit is self.player:
                     continue
                 if unit.collidesWith(self.player):
-                    colliding_pairs.append((self.player, unit))
+                    collidingPairs.append((self.player, unit))
             
-            for _, enemy in colliding_pairs:
-                enemy.getDamage()
+            for player, enemy in collidingPairs:
+                # enemy.getDamage()
+                player.getDamage(enemy.damage)
             
-            for a, b in colliding_pairs:
+            for a, b in collidingPairs:
                 self.resolveСollision(a, b)
             
             #Отталкивание врагов между собой 
@@ -212,6 +232,8 @@ class GameField:
         # Игрок
         if self.player:
             self.player.draw(self.screen, self.camera)
+            if hasattr(self.player, 'weapon'):
+                self.player.weapon.draw(self.screen, self.camera)
         self.drawHealthbars() 
         pg.display.flip()
     

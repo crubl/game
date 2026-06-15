@@ -73,7 +73,6 @@ class Game:
         """Останавливает игру (очищает поле)"""
         self.game_field = None
         self.hero = None
-        self.shop = None
 
     def handle_events(self):
         """Обработка событий (меню и игра)"""

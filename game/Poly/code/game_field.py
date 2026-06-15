@@ -56,7 +56,8 @@ class GameField:
                 trigger_time=event_config["time"],
                 enemy_count=event_config["count"],
                 radius=event_config["radius"],
-                enemy_class=Walker
+                enemy_class=Walker,
+                speed_multiplier=event_config.get("speed_multiplier", 1.0)
             )
             self.event_manager.add_event(ring_event)
         

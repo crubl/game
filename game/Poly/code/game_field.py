@@ -5,6 +5,9 @@ from constans import *
 from .camera import Camera
 from Characters.code.units.enemies.walker import Walker
 from .polyMap import Map
+from Events.EventManager import EventManager
+from Events.RingSpawnEvent import RingSpawnEvent
+from constans import RING_EVENTS
 
 class GameField:
     """Игровое поле — управляет камерой, игроком, врагами и спавном"""
@@ -41,6 +44,22 @@ class GameField:
         self.spawn_timer = 0
         self.spawn_delay = SPAWN_DELAY
         self.max_enemies = MAX_ENEMIES
+
+        # ==================== Ивенты ====================
+        self.event_manager = EventManager()
+        self._setup_events()
+        
+    def _setup_events(self):
+        """Настраивает ивенты из конфига"""
+        for event_config in RING_EVENTS:
+            ring_event = RingSpawnEvent(
+                trigger_time=event_config["time"],
+                enemy_count=event_config["count"],
+                radius=event_config["radius"],
+                enemy_class=Walker,
+                speed_multiplier=event_config.get("speed_multiplier", 1.0)
+            )
+            self.event_manager.add_event(ring_event)
         
     def load_ground_sprite(self):
         """Загружает спрайт земли"""
@@ -110,6 +129,8 @@ class GameField:
         enemy = Walker(x, y, self.player, self.screen)
         self.enemies.append(enemy)
 
+        
+
     def drawHealthbars(self):
         """Рисует полоски здоровья поверх всех спрайтов"""
         # Полоски здоровья врагов
@@ -152,6 +173,8 @@ class GameField:
         if self.player:
             self.player.update(dt)
             self.camera.update(self.player.x, self.player.y)
+
+            self.event_manager.update(dt, self)  #Ивенты
             
             self.spawn_timer += dt
             if self.spawn_timer >= self.spawn_delay:

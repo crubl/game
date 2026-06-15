@@ -1,8 +1,10 @@
 import pygame as pg
 import random
+import math
 from constans import *
 from .camera import Camera
 from Characters.code.units.enemies.walker import Walker
+from .polyMap import Map
 
 class GameField:
     """Игровое поле — управляет камерой, игроком, врагами и спавном"""
@@ -23,6 +25,7 @@ class GameField:
         self.tile_width = 0
         self.tile_height = 0
         self.load_ground_sprite()
+        self.map = None
         
         # Камера
         self.camera = Camera(
@@ -45,7 +48,9 @@ class GameField:
         self.tile_width = self.ground_sprite.get_width()
         self.tile_height = self.ground_sprite.get_height()
         print(f"Земля загружена: {GROUND_SPRITE_PATH} ({self.tile_width}x{self.tile_height})")
-            
+
+    def creatMap(self, hero):
+        self.map = Map(math.ceil(hero.radius * 2.2))
     
     def draw_ground(self):
         """Рисует землю с учётом камеры"""
@@ -104,6 +109,43 @@ class GameField:
         
         enemy = Walker(x, y, self.player, self.screen)
         self.enemies.append(enemy)
+
+    def drawHealthbars(self):
+        """Рисует полоски здоровья поверх всех спрайтов"""
+        # Полоски здоровья врагов
+        for enemy in self.enemies:
+            if enemy.health <= 0:
+                continue
+            screen_pos = self.camera.apply(enemy.x, enemy.y)
+            bar_width = 30
+            bar_height = 4
+            health_percent = enemy.health / enemy.maxHealth
+            bar_x = screen_pos[0] - bar_width // 2
+            bar_y = screen_pos[1] - enemy.image.get_height() // 2 - 6
+            pg.draw.rect(self.screen, (60, 60, 60), (bar_x, bar_y, bar_width, bar_height))
+            pg.draw.rect(self.screen, (255, 0, 0), (bar_x, bar_y, bar_width * health_percent, bar_height))
+
+    def resolveСollision(self, a, b):
+        """Раздвигает два круглых объекта"""
+        dx = a.x - b.x
+        dy = a.y - b.y
+        dist = math.hypot(dx, dy)
+        minDist = a.radius + b.radius
+        if dist < minDist and dist > 0:
+            overlap = minDist - dist
+            angle = math.atan2(dy, dx)
+            pushX = math.cos(angle) * overlap * 0.5
+            pushY = math.sin(angle) * overlap * 0.5
+            a.x += pushX
+            a.y += pushY
+            b.x -= pushX
+            b.y -= pushY
+
+            # Обновляем rectы
+            if hasattr(a, 'rect'):
+                a.rect.center = (a.x, a.y)
+            if hasattr(b, 'rect'):
+                b.rect.center = (b.x, b.y)
     
     def update(self, dt):
         """Обновляет состояние всех объектов"""
@@ -120,6 +162,63 @@ class GameField:
                 enemy.update(dt)
                 if enemy.health <= 0:
                     self.enemies.remove(enemy)
+            
+            if hasattr(self.player, 'weapon') and self.player.weapon:
+                for effect, hitbox in self.player.weapon.getActiveHitboxes():
+                    for enemy in self.enemies:
+                        if enemy.health <= 0:
+                            continue
+                        if hitbox.colliderect(enemy.rect):
+                            # Проверяем, можно ли нанести урон (например, один раз за эффект)
+                            if hasattr(effect, 'onHitEnemy'):
+                                if not effect.onHitEnemy(enemy):
+                                    continue
+                            # Рассчитываем урон (можно взять из оружия + крит)
+                            damage = self.player.weapon.damage
+                            # Добавим случайный крит (если есть параметры)
+                            if hasattr(self.player.weapon, 'critChance') and hasattr(self.player.weapon, 'critMultiplier'):
+                                import random
+                                if random.random() < self.player.weapon.critChance:
+                                    damage = int(damage * self.player.weapon.critMultiplier)
+                            enemy.getDamage(damage)
+
+            #Очищаем и перестраиваем сетку
+            self.map.clear()
+            self.map.add(self.player)
+            for enemy in self.enemies:
+                if enemy.health > 0:
+                    self.map.add(enemy)
+            
+            nearby = self.map.getNearby(self.player)
+            collidingPairs = []
+            for unit in nearby:
+                if unit is self.player:
+                    continue
+                if unit.collidesWith(self.player):
+                    collidingPairs.append((self.player, unit))
+            
+            for player, enemy in collidingPairs:
+                # enemy.getDamage()
+                player.getDamage(enemy.damage)
+            
+            for a, b in collidingPairs:
+                self.resolveСollision(a, b)
+            
+            #Отталкивание врагов между собой 
+            processed = set()
+            for enemy in self.enemies:
+                if enemy.health <= 0:
+                    continue
+                neighbors = self.map.getNearby(enemy)
+                for other in neighbors:
+                    if other is enemy or not isinstance(other, Walker):
+                        continue
+                    pair = (id(enemy), id(other))
+                    if pair in processed:
+                        continue
+                    processed.add(pair)
+                    if enemy.collidesWith(other):
+                        self.resolveСollision(enemy, other)
     
     def draw(self):
         """Отрисовывает всё игровое поле"""
@@ -130,11 +229,12 @@ class GameField:
         for enemy in self.enemies:
             if self.camera.is_visible(enemy.x, enemy.y):
                 enemy.draw(self.screen, self.camera)
-        
         # Игрок
         if self.player:
             self.player.draw(self.screen, self.camera)
-        
+            if hasattr(self.player, 'weapon'):
+                self.player.weapon.draw(self.screen, self.camera)
+        self.drawHealthbars() 
         pg.display.flip()
     
     def handle_events(self):

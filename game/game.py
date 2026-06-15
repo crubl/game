@@ -6,6 +6,7 @@ from Poly.code.game_field import GameField
 from constans import *
 import pygame as pg
 import os
+
 # Меняем рабочую директорию
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 #запуск шрифтов
@@ -49,6 +50,7 @@ class Game:
         
         # Передаём игрока в поле
         self.game_field.set_player(self.hero)
+        self.game_field.creatMap(self.hero)
 
     def stop_game(self):
         """Останавливает игру (очищает поле)"""

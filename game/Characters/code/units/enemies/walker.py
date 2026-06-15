@@ -11,13 +11,12 @@ class Walker(Unit):
         self.screen = screen
 
         # ==================== Спрайт ====================
-        self.image = pg.image.load(SPRITE_PATH)
-        self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
+        self.image = pg.image.load(SPRITE_PATH).convert_alpha()   
+        self.mask = pg.mask.from_surface(self.image)  
+        self.rect = self.image.get_rect(center=(x, y))
         
         # ==================== Характеристики ====================
-        self.maxHealth = 50
+        self.maxHealth = 1500
         self.health = self.maxHealth
         self.speed = 150
         self.damage = 80
@@ -25,13 +24,22 @@ class Walker(Unit):
     def update(self, dt):
         """Обновление врага каждый кадр"""
         self.move(dt)
-        self.rect.x = self.x
-        self.rect.y = self.y
     
     def death(self):
         """Смерть врага (пока заглушка)"""
         pass
     
+    def collidesWith(self, other):
+        # Сначала быстрая проверка по прямоугольникам (оптимизация)
+        if not self.rect.colliderect(other.rect):
+            return False
+        
+        # Точная проверка по маскам
+        offsetX = other.rect.x - self.rect.x
+        offsetY = other.rect.y - self.rect.y
+        return self.mask.overlap(other.mask, (offsetX, offsetY)) is not None
+
+
     def move(self, dt):
         """Движение к игроку (простое ИИ)"""
         # Вектор к игроку
@@ -45,7 +53,8 @@ class Walker(Unit):
             dy /= distance
             self.x += dx * self.speed * dt
             self.y += dy * self.speed * dt
-    
+        self.rect.center = (self.x, self.y)
+        
     def draw(self, screen, camera):
         """Отрисовка врага с учётом камеры"""
         # Получаем экранные координаты
@@ -56,25 +65,9 @@ class Walker(Unit):
         draw_y = screen_pos[1] - self.image.get_height() // 2
         screen.blit(self.image, (draw_x, draw_y))
         
-        # ==================== ПОЛОСКА ЗДОРОВЬЯ ====================
-        bar_width = 30
-        bar_height = 4
-        health_percent = self.health / self.maxHealth
-        bar_x = screen_pos[0] - bar_width // 2
-        bar_y = screen_pos[1] - self.image.get_height() // 2 - 6
-        
-        # Фон полоски
-        pg.draw.rect(screen, (60, 60, 60), (bar_x, bar_y, bar_width, bar_height))
-        # Здоровье
-        pg.draw.rect(screen, (255, 0, 0), (bar_x, bar_y, bar_width * health_percent, bar_height))
-    
-    def getDamage(self):
+    def getDamage(self, damage):
         """Получение урона от игрока"""
-        damage = self.damageMod()
+        damage = damage
         self.health -= damage
         if self.health <= 0:
             self.death()
-        return damage
-
-    # def getPosition(self):
-    #     return (self.x, self.y)

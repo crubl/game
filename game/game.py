@@ -64,7 +64,7 @@ class Game:
         # Передаём игрока в поле
         self.game_field.set_player(self.hero)
         self.game_field.creatMap(self.hero)
-        
+
         # ОБНОВЛЯЕМ МЕНЕДЖЕР ЭКРАНОВ С МАГАЗИНОМ
         self.screen_manager.set_shop(self.shop)
         self.screen_manager.create_shop_buttons(self.shop)

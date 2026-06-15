@@ -64,9 +64,6 @@ class Game:
         # Передаём игрока в поле
         self.game_field.set_player(self.hero)
         self.game_field.creatMap(self.hero)
-
-        # СОЗДАЁМ МАГАЗИН ПОСЛЕ ГЕРОЯ
-        self.shop = Shop(self.hero)
         
         # ОБНОВЛЯЕМ МЕНЕДЖЕР ЭКРАНОВ С МАГАЗИНОМ
         self.screen_manager.set_shop(self.shop)
@@ -75,8 +72,7 @@ class Game:
     def stop_game(self):
         """Останавливает игру (очищает поле)"""
         self.game_field = None
-        #self.hero = None
-        #self.shop = None
+        self.hero = None
 
     def handle_events(self):
         """Обработка событий (меню и игра)"""

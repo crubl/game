@@ -34,3 +34,8 @@ GROUND_SPRITE_PATH = "./Poly/sprites/ground.webp"
 # ==================== Спавн врагов ===================
 SPAWN_DELAY = 1.0
 MAX_ENEMIES = 1000
+
+# ==================== Ивенты ====================
+RING_EVENTS = [
+    {"time": 15.0, "count": 12, "radius": 1500}, #time - через какое время, count - количество врагов, radius - радиус кольца
+]

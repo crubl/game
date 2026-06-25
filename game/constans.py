@@ -15,12 +15,12 @@ GOLD = (255, 215, 0)
 
 # ==================== Герой ==========================
 #Параметры спрайта
-SPRITE_PATH = "./Characters/sprites/hero/hero.png"
+SPRITE_PATH_HERO = "./Characters/sprites/hero/hero.png"
 # =====================================================
 
 # ==================== Враг ===========================
 #Параметры спрайта
-SPRITE_PATH = "./Characters/sprites/enemies/spritepaint.png"
+SPRITE_PATH_ENEMY = "./Characters/sprites/enemies/enemy.png"
 # =====================================================
 
 # ==================== Поле ===========================

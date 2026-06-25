@@ -116,6 +116,11 @@ class Warrior(Unit):
         if self.weapon.canActivate():
             self.weapon.activate()
 
+    def death(self):
+        """Смерть героя – здесь можно добавить логику, если нужно"""
+        # Например, можно установить флаг, но проверка здоровья в Game уже обрабатывает смерть
+        pass
+
     def loadAttackParts(self):
         self.attackParts = []
         for i in range(1, 5):

@@ -124,7 +124,7 @@ class Game:
             self.screen_manager.draw_shop()
         elif self.current_state == "game":
             if self.game_field:
-                self.game_field.draw()   # внутри НЕТ pg.display.flip()
+                self.game_field.draw()
 
             # Если пауза – рисуем затемнение и надпись
             if self.paused:
@@ -150,7 +150,6 @@ class Game:
             hint_rect = hint_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 30))
             self.screen.blit(hint_text, hint_rect)
 
-        # ЕДИНСТВЕННЫЙ ВЫЗОВ flip – экран не мерцает
         pg.display.flip()
 
     def run(self):

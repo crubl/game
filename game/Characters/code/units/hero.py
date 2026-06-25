@@ -14,7 +14,7 @@ class Warrior(Unit):
         self.game_field = game_field
 
         # ===== Коэффициент масштабирования =====
-        self.scale_factor = 1.0   # можно менять (1.0 – оригинал, 1.2 – чуть крупнее)
+        self.scale_factor = 1.0
 
         # Загрузка спрайт-листа (8 столбцов, 2 строки: idle / walk)
         self.sprite_sheet = pg.image.load(SPRITE_PATH_HERO).convert_alpha()
@@ -23,7 +23,7 @@ class Warrior(Unit):
         new_w = int(orig_w * self.scale_factor)
         new_h = int(orig_h * self.scale_factor)
 
-        # Кадры и маски для idle (строка 0)
+        # Кадры и маски для idle
         self.frames_idle = []
         self.masks_idle = []
         for col in range(8):
@@ -32,7 +32,7 @@ class Warrior(Unit):
             self.frames_idle.append(scaled_frame)
             self.masks_idle.append(pg.mask.from_surface(scaled_frame))
 
-        # Кадры и маски для walk (строка 1)
+        # Кадры и маски для walk
         self.frames_walk = []
         self.masks_walk = []
         for col in range(8):
@@ -53,7 +53,6 @@ class Warrior(Unit):
 
         # ===== Размеры и коллизии =====
         self.size = new_w
-        # Радиус ≈40% от ширины (предотвращает резкие раздвигания)
         self.radius = 25
         self.rect = self.image.get_rect(center=(x, y))
 
@@ -116,11 +115,6 @@ class Warrior(Unit):
         self.weapon.update(dt)
         if self.weapon.canActivate():
             self.weapon.activate()
-
-    def death(self):
-        """Смерть героя – здесь можно добавить логику, если нужно"""
-        # Например, можно установить флаг, но проверка здоровья в Game уже обрабатывает смерть
-        pass
 
     def loadAttackParts(self):
         self.attackParts = []

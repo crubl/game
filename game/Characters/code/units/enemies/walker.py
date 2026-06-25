@@ -11,7 +11,7 @@ class Walker(Unit):
         self.screen = screen
 
         # ===== НАСТРОЙКА РАЗМЕРА =====
-        self.scale_factor = 1.0   # 1.0 = исходный размер, можно поставить 1.2 для небольшого увеличения
+        self.scale_factor = 1.0
 
         self.sprite_sheet = pg.image.load(SPRITE_PATH_ENEMY).convert_alpha()
         orig_w = self.sprite_sheet.get_width() // 8
@@ -19,7 +19,6 @@ class Walker(Unit):
         new_w = int(orig_w * self.scale_factor)
         new_h = int(orig_h * self.scale_factor)
 
-        # Кадры и маски (как раньше)
         self.frames_idle = []
         self.masks_idle = []
         for col in range(8):
@@ -48,10 +47,7 @@ class Walker(Unit):
 
         # ===== РАЗМЕРЫ И КОЛЛИЗИИ =====
         self.size = new_w
-        # Радиус берём чуть меньше половины ширины, чтобы избежать резких раздвиганий
-        self.radius = 20    # например, 40% от ширины – подберите под свой спрайт
-        # Если хотите фиксированный радиус, закомментируйте выше и раскомментируйте:
-        # self.radius = 25
+        self.radius = 25
 
         self.rect = self.image.get_rect(center=(x, y))
 
@@ -62,7 +58,6 @@ class Walker(Unit):
         self.damage = 80
 
     def update_animation(self, dt):
-        # ... без изменений (код из предыдущего ответа) ...
         if self.is_moving:
             new_frames = self.frames_walk
             new_masks = self.masks_walk

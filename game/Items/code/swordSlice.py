@@ -8,16 +8,16 @@ class Sword(Weapon):
         self.damage = 80
         self.critChance = 0.1
         self.critMultiplier = 1.8
-        self.cooldown = 0.6                     # <- теперь правильно установлен
+        self.cooldown = 0.6                     
         self.attackImage = self.loadImage()
-        # Размер спрайта (можно задать свой)
+        # Размер спрайта
         self.sprite_width = self.attackImage.get_width()
         self.sprite_height = self.attackImage.get_height()
 
     def loadImage(self):
         path = "./Items/sprites/sword-attack.png"
         img = pg.image.load(path).convert_alpha()
-        # Масштабируем до удобного размера, например 64x64
+        # Масштабируем до удобного размера
         img = pg.transform.smoothscale(img, (64, 64))
         return img
 

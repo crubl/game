@@ -8,7 +8,7 @@ class SlashEffect(WeaponEffect):
         self.image = image.copy()
         self.direction = direction
         self.offsetFunc = offsetFunc
-        self.lifetime = 0.3                     # секунд, эффект активен
+        self.lifetime = 0.3  # секунд, эффект активен
         self.timer = 0.0
         self.damagedEnemies = set()
         self.rect = self.image.get_rect()
@@ -28,9 +28,6 @@ class SlashEffect(WeaponEffect):
     def draw(self, surface, camera):
         if self.finished:
             return
-        # При желании можно добавить прозрачность по времени
-        # alpha = int(255 * (1 - self.timer / self.lifetime))
-        # self.image.set_alpha(alpha)
         screen_pos = camera.apply(self.rect.x, self.rect.y)
         surface.blit(self.image, screen_pos)
 

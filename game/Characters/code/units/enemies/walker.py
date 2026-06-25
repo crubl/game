@@ -7,67 +7,117 @@ class Walker(Unit):
     
     def __init__(self, x, y, hero, screen):
         super().__init__(x, y)
-        self.hero = hero      # ссылка на игрока (нужна для ИИ)
+        self.hero = hero
         self.screen = screen
 
-        # ==================== Спрайт ====================
-        self.image = pg.image.load(SPRITE_PATH).convert_alpha()   
-        self.mask = pg.mask.from_surface(self.image)  
+        # ===== НАСТРОЙКА РАЗМЕРА =====
+        self.scale_factor = 1.0
+
+        self.sprite_sheet = pg.image.load(SPRITE_PATH_ENEMY).convert_alpha()
+        orig_w = self.sprite_sheet.get_width() // 8
+        orig_h = self.sprite_sheet.get_height() // 2
+        new_w = int(orig_w * self.scale_factor)
+        new_h = int(orig_h * self.scale_factor)
+
+        self.frames_idle = []
+        self.masks_idle = []
+        for col in range(8):
+            frame = self.sprite_sheet.subsurface((col * orig_w, 0, orig_w, orig_h))
+            scaled_frame = pg.transform.smoothscale(frame, (new_w, new_h))
+            self.frames_idle.append(scaled_frame)
+            self.masks_idle.append(pg.mask.from_surface(scaled_frame))
+
+        self.frames_walk = []
+        self.masks_walk = []
+        for col in range(8):
+            frame = self.sprite_sheet.subsurface((col * orig_w, orig_h, orig_w, orig_h))
+            scaled_frame = pg.transform.smoothscale(frame, (new_w, new_h))
+            self.frames_walk.append(scaled_frame)
+            self.masks_walk.append(pg.mask.from_surface(scaled_frame))
+
+        # Текущее состояние
+        self.current_frame_index = 0
+        self.animation_timer = 0.0
+        self.animation_speed = 0.1
+        self.is_moving = False
+        self.current_frames = self.frames_idle
+        self.current_masks = self.masks_idle
+        self.image = self.current_frames[0]
+        self.mask = self.current_masks[0]
+
+        # ===== РАЗМЕРЫ И КОЛЛИЗИИ =====
+        self.size = new_w
+        self.radius = 25
+
         self.rect = self.image.get_rect(center=(x, y))
-        
-        # ==================== Характеристики ====================
+
+        # ===== Характеристики =====
         self.maxHealth = 1500
         self.health = self.maxHealth
         self.speed = 150
         self.damage = 80
-    
+
+    def update_animation(self, dt):
+        if self.is_moving:
+            new_frames = self.frames_walk
+            new_masks = self.masks_walk
+        else:
+            new_frames = self.frames_idle
+            new_masks = self.masks_idle
+
+        if new_frames != self.current_frames:
+            self.current_frames = new_frames
+            self.current_masks = new_masks
+            self.current_frame_index = 0
+            self.animation_timer = 0.0
+            self.image = self.current_frames[0]
+            self.mask = self.current_masks[0]
+            return
+
+        self.animation_timer += dt
+        if self.animation_timer >= self.animation_speed:
+            self.animation_timer = 0.0
+            self.current_frame_index = (self.current_frame_index + 1) % len(self.current_frames)
+            self.image = self.current_frames[self.current_frame_index]
+            self.mask = self.current_masks[self.current_frame_index]
+
     def update(self, dt):
-        """Обновление врага каждый кадр"""
         self.move(dt)
-    
+        self.update_animation(dt)
+
     def death(self):
-        """Смерть врага (пока заглушка)"""
         pass
-    
+
     def collidesWith(self, other):
-        # Сначала быстрая проверка по прямоугольникам (оптимизация)
         if not self.rect.colliderect(other.rect):
             return False
-        
-        # Точная проверка по маскам
         offsetX = other.rect.x - self.rect.x
         offsetY = other.rect.y - self.rect.y
         return self.mask.overlap(other.mask, (offsetX, offsetY)) is not None
 
-
     def move(self, dt):
-        """Движение к игроку (простое ИИ)"""
-        # Вектор к игроку
         dx = self.hero.x - self.x
         dy = self.hero.y - self.y
         distance = math.hypot(dx, dy)
-        
-        # Движение в сторону игрока
-        if distance > 1:  # чтобы не делить на ноль
+
+        if distance > 1:
+            self.is_moving = True
             dx /= distance
             dy /= distance
             self.x += dx * self.speed * dt
             self.y += dy * self.speed * dt
+        else:
+            self.is_moving = False
+
         self.rect.center = (self.x, self.y)
-        
+
     def draw(self, screen, camera):
-        """Отрисовка врага с учётом камеры"""
-        # Получаем экранные координаты
         screen_pos = camera.apply(self.x, self.y)
-        
-        # Центрируем спрайт
         draw_x = screen_pos[0] - self.image.get_width() // 2
         draw_y = screen_pos[1] - self.image.get_height() // 2
         screen.blit(self.image, (draw_x, draw_y))
-        
+
     def getDamage(self, damage):
-        """Получение урона от игрока"""
-        damage = damage
         self.health -= damage
         if self.health <= 0:
             self.death()

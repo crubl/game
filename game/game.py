@@ -8,134 +8,151 @@ from constans import *
 import pygame as pg
 import os
 
-# Меняем рабочую директорию
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
-#запуск шрифтов
 pg.font.init()
 
 
 class Game:
-    """Основной класс игры с меню и самой игрой"""
     def __init__(self):
-        # ==================== Параметры игры ====================
         self.screen = pg.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         self.clock = pg.time.Clock()
         self.running = True
-        self.current_state = "menu"  # menu, game, shop
+        self.current_state = "menu"      # menu, game, shop, game_over
 
-        # ==================== Шрифты ====================
+        # Шрифты
         self.font_title = pg.font.Font(None, 74)
         self.font_button = pg.font.Font(None, 48)
         self.font_small = pg.font.Font(None, 36)
-        
-        
-        
-        # ==================== Игроые объекты ====================
-        self.game_field = None   # будет создан при запуске игры
+
+        # Игровые объекты
+        self.game_field = None
         self.hero = None
         self.shop = Shop()
 
-        # ==================== Меню ====================
         self.screen_manager = ScreenManager(
-            self.screen, 
-            SCREEN_WIDTH, 
+            self.screen,
+            SCREEN_WIDTH,
             SCREEN_HEIGHT,
-            self.font_title, 
-            self.font_button, 
+            self.font_title,
+            self.font_button,
             self.font_small,
-            self.shop  
+            self.shop
         )
 
-        
+        self.paused = False          # флаг паузы
 
     def start_game(self):
-        """Запускает новую игру (создаёт поле и игрока)"""
-        # Создаём игровое поле
         self.game_field = GameField(self.screen)
-        
-        # Создаём игрока в центре мира
         self.hero = Warrior(
             self.game_field.world_width // 2,
             self.game_field.world_height // 2,
             self.screen,
             self.game_field
         )
-        
-        # Передаём игрока в поле
         self.game_field.set_player(self.hero)
         self.game_field.creatMap(self.hero)
 
-        # ОБНОВЛЯЕМ МЕНЕДЖЕР ЭКРАНОВ С МАГАЗИНОМ
         self.screen_manager.set_shop(self.shop)
         self.screen_manager.create_shop_buttons(self.shop)
+        self.paused = False
 
     def stop_game(self):
-        """Останавливает игру (очищает поле)"""
         self.game_field = None
         self.hero = None
+        self.paused = False
 
     def handle_events(self):
-        """Обработка событий (меню и игра)"""
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 self.running = False
                 return
 
-            # ==================== Обработка меню ====================
+            # ----- МЕНЮ -----
             if self.current_state == "menu":
                 action = self.screen_manager.handle_menu_events(event)
-                
-
                 if action == "quit":
                     self.running = False
                 elif action == "game":
                     self.current_state = "game"
-                    self.start_game()  # создаём игровое поле
+                    self.start_game()
                 elif action == "shop":
                     if self.shop is None:
                         print("Сначала начните игру (нажмите PLAY)!")
                     else:
                         self.current_state = "shop"
-                        
-            # ==================== Обработка магазина ====================
+
+            # ----- МАГАЗИН -----
             elif self.current_state == "shop":
-                
                 action = self.screen_manager.shop_back_button.handle_event(event)
-                success, result = self.screen_manager.handle_shop_events(event)
-                #print(f"Результат: {success}, {result}")
+                self.screen_manager.handle_shop_events(event)
                 if action == "menu":
                     self.current_state = "menu"
 
-            # ==================== Обработка игры ====================
+            # ----- ИГРА -----
             elif self.current_state == "game":
-                # Проверяем, не закрыли ли игру
                 if event.type == pg.KEYDOWN:
                     if event.key == pg.K_ESCAPE:
                         self.current_state = "menu"
-                        self.stop_game()  # очищаем поле
+                        self.stop_game()
+                    elif event.key == pg.K_p:          # <-- ПАУЗА по клавише P
+                        self.paused = not self.paused
 
-                # Передаём события в игру (если нужно)
                 if self.game_field:
                     self.game_field.handle_events()
 
+            # ----- GAME OVER -----
+            elif self.current_state == "game_over":
+                if event.type == pg.KEYDOWN:
+                    self.current_state = "menu"
+                    self.stop_game()
+
     def update(self, dt):
-        """Обновление состояния в зависимости от текущего экрана"""
-        if self.current_state == "game" and self.game_field:
+        # Обновляем игру только если мы в игре и не на паузе
+        if self.current_state == "game" and self.game_field and not self.paused:
             self.game_field.update(dt)
+            # Проверка смерти героя
+            if self.hero and self.hero.health <= 0:
+                self.current_state = "game_over"
 
     def draw(self):
-        """Отрисовка в зависимости от текущего экрана"""
+        # ОЧИЩАЕМ ЭКРАН – убираем мерцание
+        self.screen.fill((0, 0, 0))
+
         if self.current_state == "menu":
             self.screen_manager.draw_menu()
         elif self.current_state == "shop":
             self.screen_manager.draw_shop()
-        elif self.current_state == "game" and self.game_field:
-            self.game_field.draw()
-        
+        elif self.current_state == "game":
+            if self.game_field:
+                self.game_field.draw()
+
+            # Если пауза – рисуем затемнение и надпись
+            if self.paused:
+                overlay = pg.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pg.SRCALPHA)
+                overlay.fill((0, 0, 0, 128))
+                self.screen.blit(overlay, (0, 0))
+                pause_text = self.font_title.render("PAUSE", True, (255, 255, 255))
+                text_rect = pause_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
+                self.screen.blit(pause_text, text_rect)
+
+        elif self.current_state == "game_over":
+            # Рисуем замороженное поле
+            if self.game_field:
+                self.game_field.draw()
+            # Затемнение и текст
+            overlay = pg.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pg.SRCALPHA)
+            overlay.fill((0, 0, 0, 180))
+            self.screen.blit(overlay, (0, 0))
+            game_over_text = self.font_title.render("GAME OVER", True, (255, 50, 50))
+            text_rect = game_over_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 50))
+            self.screen.blit(game_over_text, text_rect)
+            hint_text = self.font_small.render("Press any key to return to menu", True, (255, 255, 255))
+            hint_rect = hint_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 30))
+            self.screen.blit(hint_text, hint_rect)
+
         pg.display.flip()
 
     def run(self):
-        """Главный игровой цикл"""
         dt = 0.0
         while self.running:
             self.handle_events()

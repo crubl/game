@@ -258,7 +258,6 @@ class GameField:
             if hasattr(self.player, 'weapon'):
                 self.player.weapon.draw(self.screen, self.camera)
         self.drawHealthbars() 
-        pg.display.flip()
     
     def handle_events(self):
         """Обработка событий (клавиши, закрытие окна)"""

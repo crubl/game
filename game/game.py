@@ -19,6 +19,12 @@ class Game:
         self.running = True
         self.current_state = "menu"      # menu, game, shop, game_over
 
+        # ==================== МУЗЫКА ====================
+        self.music_on = True
+        self.init_audio()
+        self.load_menu_music()
+        self.start_menu_music()
+
         # Шрифты
         self.font_title = pg.font.Font(None, 74)
         self.font_button = pg.font.Font(None, 48)
@@ -40,6 +46,56 @@ class Game:
         )
 
         self.paused = False          # флаг паузы
+
+    def init_audio(self):
+        """Инициализация аудио"""
+        try:
+            pg.mixer.init()
+            print("Аудио инициализировано")
+        except Exception as e:
+            print(f"Ошибка инициализации аудио: {e}")
+            self.music_on = False
+
+    def load_menu_music(self):
+        """Загрузка музыки для меню"""
+        
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        
+        music_path = os.path.join(current_dir, "Main_menu", "sounds", "menu_music.mp3")
+        
+        print(f"Ищем музыку по пути: {music_path}")
+        
+        if os.path.exists(music_path):
+            self.menu_music_path = music_path
+            print(f"✅ Музыка найдена!")
+            self.music_on = True
+        else:
+            self.menu_music_path = None
+            print(f"❌ Файл не найден: {music_path}")
+            self.music_on = False
+
+    def start_menu_music(self):
+        """Запуск музыки для меню"""
+        if not self.music_on or not self.menu_music_path:
+            return
+        try:
+            pg.mixer.music.load(self.menu_music_path)
+            pg.mixer.music.set_volume(0.3)  # Громкость 30%
+            pg.mixer.music.play(-1)  # Бесконечное повторение
+            print("Музыка меню запущена")
+        except Exception as e:
+            print(f"Не удалось запустить музыку: {e}")
+            self.music_on = False
+
+    def toggle_music(self):
+        """Включить/выключить музыку"""
+        self.music_on = not self.music_on
+        if self.music_on:
+            self.start_menu_music()
+            print("Музыка включена")
+        else:
+            pg.mixer.music.stop()
+            print("Музыка выключена") 
 
     def start_game(self):
         self.game_field = GameField(self.screen)
@@ -76,11 +132,16 @@ class Game:
                 elif action == "game":
                     self.current_state = "game"
                     self.start_game()
+                    pg.mixer.music.stop()
                 elif action == "shop":
                     if self.shop is None:
                         print("Сначала начните игру (нажмите PLAY)!")
                     else:
                         self.current_state = "shop"
+                        pg.mixer.music.stop()
+
+                if event.type == pg.KEYDOWN and event.key == pg.K_m:
+                    self.toggle_music()        
 
             # ----- МАГАЗИН -----
             elif self.current_state == "shop":
@@ -88,12 +149,15 @@ class Game:
                 self.screen_manager.handle_shop_events(event)
                 if action == "menu":
                     self.current_state = "menu"
+                    self.start_menu_music()
 
             # ----- ИГРА -----
             elif self.current_state == "game":
                 if event.type == pg.KEYDOWN:
                     if event.key == pg.K_ESCAPE:
                         self.current_state = "menu"
+                        self.stop_game()
+                        self.start_menu_music()
                         self.stop_game()
                     elif event.key == pg.K_p:          # <-- ПАУЗА по клавише P
                         self.paused = not self.paused

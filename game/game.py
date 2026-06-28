@@ -58,25 +58,23 @@ class Game:
 
     def load_menu_music(self):
         """Загрузка музыки для меню"""
-        try:
+        #try:
             
-            base_dir = os.path.dirname(os.path.abspath(__file__))
-            music_path = os.path.join(base_dir, 'sounds', 'menu_music.mp3')
-            
-            print(f"Ищем музыку: {music_path}")
-            
-            if os.path.exists(music_path):
-                self.menu_music_path = music_path
-                print(f"✅ Музыка найдена!")
-                self.music_on = True
-            else:
-                self.menu_music_path = None
-                print(f"❌ Файл не найден: {music_path}")
-                print(f"Проверьте путь: {base_dir}/sounds/menu_music.mp3")
-                self.music_on = False
-        except Exception as e:
-            print(f"Ошибка загрузки музыки: {e}")
+        music_path = r"C:\Users\бла бла\Documents\GitHub\game\game\sounds\menu_music.mp3"
+        
+        print(f"Ищем музыку: {music_path}")
+        
+        if os.path.exists(music_path):
+            self.menu_music_path = music_path
+            print(f"✅ Музыка найдена!")
+            self.music_on = True
+        else:
+            self.menu_music_path = None
+            print(f"❌ Файл не найден: {music_path}")
             self.music_on = False
+        #except Exception as e:
+            #print(f"Ошибка загрузки музыки: {e}")
+            #self.music_on = False
 
     def start_menu_music(self):
         """Запуск музыки для меню"""

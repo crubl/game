@@ -1,9 +1,9 @@
 {
-  "coins": 9750,
+  "coins": 9428,
   "upgrades": {
     "speed": 0,
     "health": 0,
-    "damage": 0,
+    "damage": 2,
     "crit_damage": 0,
     "crit_chance": 1
   }

@@ -23,6 +23,13 @@ SPRITE_PATH_HERO = "./Characters/sprites/hero/hero.png"
 SPRITE_PATH_ENEMY = "./Characters/sprites/enemies/enemy.png"
 # =====================================================
 
+# ==================== Меню ============================
+MENU_BACKGROUND_PATH = "./Main_menu/sprites/menu_background.png"
+MENU_BUTTONS_SPRITE_PATH = "./Main_menu/sprites/menu_buttons.png"
+SHOP_BACKGROUND_PATH = "./Main_menu/sprites/shop_background.png"
+SHOP_BUTTON_BACKGROUND_PATH = "./Main_menu/sprites/shop_button_bg.png"
+# =====================================================
+
 # ==================== Поле ===========================
 #Размеры
 WORLD_WIDTH = 2400

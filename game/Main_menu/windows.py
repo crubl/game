@@ -14,18 +14,62 @@ class ScreenManager: #класс для отрисовки кнопок
         self.font_button = pygame.font.Font(None, 48)
         self.font_small = pygame.font.Font(None, 36)
 
-        self.menu_buttons = [
-        Button(SCREEN_WIDTH//10, 200, 200, 60, "PLAY", DIM_GRAY, GAINSBORO, "game"),
+        self.menu_button_images = self.load_menu_button_images()
 
-        Button(SCREEN_WIDTH//10, 300, 200, 60, "SHOP", DIM_GRAY, GAINSBORO, "shop"),
+        self.menu_buttons = []
+        menu_actions = [
+            ("PLAY", "game", self.menu_button_images[0]),
+            ("SHOP", "shop", self.menu_button_images[1]),
+            ("QUIT", "quit", self.menu_button_images[2])
+        ]
 
-        Button(SCREEN_WIDTH//10, 400, 200, 60, "QUIT", DIM_GRAY, GAINSBORO, "quit")
-    ]
+        button_spacing = 20
+        button_positions = []
+        for text, action, image in menu_actions:
+            button_text = "" if image is not None else text
+            button_image = None
+            width = 200
+            height = 60
+
+            if image is not None:
+                img_width, img_height = image.get_size()
+                max_width = 260
+                if img_width > max_width:
+                    scale = max_width / img_width
+                    width = max_width
+                    height = max(60, int(img_height * scale))
+                    button_image = pygame.transform.smoothscale(image, (width, height))
+                else:
+                    width = img_width
+                    height = img_height
+                    button_image = image
+
+            button_positions.append((button_text, action, button_image, width, height))
+
+        total_height = sum(height for _, _, _, width, height in button_positions) + button_spacing * (len(button_positions) - 1)
+        start_y = self.height // 2 - total_height // 2
+        x = SCREEN_WIDTH // 10
+
+        for text, action, button_image, width, height in button_positions:
+            self.menu_buttons.append(Button(x, start_y, width, height, text, DIM_GRAY, GAINSBORO, action, image=button_image))
+            start_y += height + button_spacing
+
+        self.menu_background = self.load_menu_background()
+        self.shop_background = self.load_shop_background()
+        self.shop_button_bg = self.load_shop_button_background()
+
+        # Separate back-button background configuration
+        back_width = 250
+        back_height = 50
+        self.shop_back_button_bg = None
+        if self.shop_button_bg is not None:
+            self.shop_back_button_bg = self.scale_image_to_box(self.shop_button_bg, back_width, back_height)
+
         self.shop_back_button = Button(
-            self.width//2 - 100, 
-            self.height - 100, 
-            200, 50,
-            "Назад в меню", GRAY, GAINSBORO, "menu"
+            self.width//2 - back_width//2,
+            self.height - 100,
+            back_width, back_height,
+            "Назад в меню", GRAY, GAINSBORO, "menu", image=self.shop_back_button_bg
         )
 
         self.shop_upgrade_buttons = []
@@ -38,17 +82,46 @@ class ScreenManager: #класс для отрисовки кнопок
         self.shop = shop
         self.create_shop_buttons(shop)
     
+    def scale_image_to_box(self, image, width, height):
+        """Масштабировать изображение кнопки без обрезания"""
+        if image is None:
+            return None
+
+        image = image.convert_alpha()
+        img_width, img_height = image.get_size()
+        if img_width <= 0 or img_height <= 0:
+            return None
+
+        return pygame.transform.smoothscale(image, (width, height))
+
     def create_shop_buttons(self, shop):
         """Создание кнопок магазина"""
         self.shop = shop
         self.shop_upgrade_buttons = []
-        
-        button_width = 700
-        button_height = 50
-        start_x = self.width//2 - button_width//2
-        start_y = 180
-        spacing = 65
-        
+
+        upgrade_names = list(shop.upgrades.keys())
+        button_texts = [self.get_upgrade_button_text(name) for name in upgrade_names]
+        text_surfaces = [self.font_button.render(text, True, (0, 0, 0)) for text in button_texts]
+
+        min_width = 280
+        max_width = 650
+        padding_x = 24
+        padding_y = 16
+        spacing = 2
+
+        max_text_width = max(surf.get_width() for surf in text_surfaces)
+        button_width = min(max_width, max(min_width, max_text_width + padding_x * 2))
+
+        max_text_height = max(surf.get_height() for surf in text_surfaces)
+        computed = max_text_height * 6 + padding_y * 2
+        button_height = max(20, min(280, computed // 3))
+
+        button_sizes = [(button_width, button_height) for _ in text_surfaces]
+
+        total_height = len(button_sizes) * button_height + spacing * (len(button_sizes) - 1)
+        start_y = self.height // 2 - total_height // 2
+        start_x = self.width - button_width - 50
+
         upgrade_colors = {
             'speed': (100, 200, 255),
             'health': (255, 100, 100),
@@ -57,17 +130,22 @@ class ScreenManager: #класс для отрисовки кнопок
             'crit_chance': (100, 255, 100),
             'exp': (100, 255, 200)
         }
-        
-        # Получаем список улучшений из shop
-        for i, upgrade_name in enumerate(shop.upgrades.keys()):
-            y = start_y + i * spacing
+
+        for i, upgrade_name in enumerate(upgrade_names):
+            button_width, button_height = button_sizes[i]
+            y = start_y + sum(button_sizes[j][1] + spacing for j in range(i))
             color = upgrade_colors.get(upgrade_name, GAINSBORO)
-            
+
+            button_image = None
+            if self.shop_button_bg is not None:
+                button_image = self.scale_image_to_box(self.shop_button_bg, button_width, button_height)
+
             button = Button(
                 start_x, y, button_width, button_height,
-                self.get_upgrade_button_text(upgrade_name),
+                button_texts[i],
                 (50, 50, 50), color,
-                f"upgrade_{upgrade_name}"
+                f"upgrade_{upgrade_name}",
+                image=button_image
             )
             self.shop_upgrade_buttons.append(button)
     
@@ -98,11 +176,15 @@ class ScreenManager: #класс для отрисовки кнопок
         
     def draw_menu(self): #отрисовка главного меню
 
-        self.screen.fill(DEEP_SKY_BLUE)
+        if self.menu_background:
+            bg = pygame.transform.scale(self.menu_background, (self.width, self.height))
+            self.screen.blit(bg, (0, 0))
+        else:
+            self.screen.fill(DEEP_SKY_BLUE)
 
         #отрисовка названия игры
-        title = self.font_title.render("МОЯ ИГРА", True, GRAY)
-        title_rect = title.get_rect(center=(SCREEN_WIDTH//5, 100))
+        title = self.font_title.render("ROGUE SURVIVORS", True, GRAY)
+        title_rect = title.get_rect(center=(SCREEN_WIDTH//4, 100))
         self.screen.blit(title, title_rect)
 
         for button in self.menu_buttons:
@@ -115,7 +197,11 @@ class ScreenManager: #класс для отрисовки кнопок
             print("Магазин не инициализирован!")
             return
 
-        self.screen.fill(BLACK)
+        if self.shop_background:
+            bg = pygame.transform.scale(self.shop_background, (self.width, self.height))
+            self.screen.blit(bg, (0, 0))
+        else:
+            self.screen.fill(BLACK)
         
         # Заголовок
         title = self.font_title.render("МАГАЗИН", True, GAINSBORO)
@@ -134,9 +220,6 @@ class ScreenManager: #класс для отрисовки кнопок
         # Кнопка назад
         self.shop_back_button.draw(self.screen, self.font_button)
         
-        # Отображение информации о герое
-        #self.draw_hero_stats()
-        
         # Отображение сообщения если есть
         if self.shop.message and self.shop.message_timer > 0:
             msg = self.font_small.render(self.shop.message, True, GOLD)
@@ -144,36 +227,73 @@ class ScreenManager: #класс для отрисовки кнопок
             self.screen.blit(msg, msg_rect)
         
         
-    # def draw_hero_stats(self):
-    #     """Отрисовка статистики героя"""
-    #     if not hasattr(self, 'shop') or not self.shop.hero:
-    #         return
-        
-    #     hero = self.shop.hero
-        
-    #     # Заголовок статистики
-    #     stats_title = self.font_small.render("ХАРАКТЕРИСТИКИ ГЕРОЯ", True, GAINSBORO)
-    #     stats_title_rect = stats_title.get_rect(topleft=(50, 180))
-    #     self.screen.blit(stats_title, stats_title_rect)
-        
-    #     # Статы героя
-    #     stats = [
-    #         (f"Здоровье: {hero.health}/{hero.max_health}", (255, 100, 100)),
-    #         (f"Скорость: {hero.speed}", (100, 200, 255)),
-    #         (f"Урон: {hero.damage}", (255, 200, 100)),
-    #         (f"Крит шанс: {hero.critChance * 100:.1f}%", (100, 255, 100)),
-    #         (f"Крит урон: {hero.critMod:.1f}x", (255, 100, 255)),
-    #         (f"Множитель опыта: {hero.exp_multiplier:.1f}x", (100, 255, 200)),
-    #         (f"Уровень: {hero.level}", (200, 200, 200)),
-    #         (f"Опыт: {hero.exp}/{hero.exp_to_next_level}", (200, 200, 100))
-    #     ]
-        
-    #     start_y = 220
-    #     for i, (stat_text, color) in enumerate(stats):
-    #         stat = self.font_small.render(stat_text, True, color)
-    #         stat_rect = stat.get_rect(topleft=(50, start_y + i * 30))
-    #         self.screen.blit(stat, stat_rect)
+   
     
+    def load_menu_button_images(self):
+        """Загрузить спрайт-кнопки для главного меню"""
+        try:
+            sheet = pygame.image.load(MENU_BUTTONS_SPRITE_PATH).convert_alpha()
+            width, height = sheet.get_size()
+
+            cols = [any(sheet.get_at((x, y))[3] > 0 for y in range(height)) for x in range(width)]
+            rows = [any(sheet.get_at((x, y))[3] > 0 for x in range(width)) for y in range(height)]
+
+            col_runs = []
+            start = None
+            for x, filled in enumerate(cols):
+                if filled and start is None:
+                    start = x
+                elif not filled and start is not None:
+                    col_runs.append((start, x - 1))
+                    start = None
+            if start is not None:
+                col_runs.append((start, width - 1))
+
+            row_runs = []
+            start = None
+            for y, filled in enumerate(rows):
+                if filled and start is None:
+                    start = y
+                elif not filled and start is not None:
+                    row_runs.append((start, y - 1))
+                    start = None
+            if start is not None:
+                row_runs.append((start, height - 1))
+
+            if len(col_runs) == 3 and row_runs:
+                y0, y1 = row_runs[0]
+                images = []
+                for x0, x1 in col_runs:
+                    crop = sheet.subsurface((x0, y0, x1 - x0 + 1, y1 - y0 + 1)).copy()
+                    images.append(crop)
+                return images
+
+            button_width = max(1, width // 3)
+            return [sheet.subsurface((i * button_width, 0, button_width, height)).copy() for i in range(3)]
+        except Exception:
+            return [None, None, None]
+
+    def load_menu_background(self):
+        """Загрузить фон для главного меню"""
+        try:
+            return pygame.image.load(MENU_BACKGROUND_PATH).convert()
+        except Exception:
+            return None
+
+    def load_shop_background(self):
+        """Загрузить фон для магазина"""
+        try:
+            return pygame.image.load(SHOP_BACKGROUND_PATH).convert()
+        except Exception:
+            return None
+
+    def load_shop_button_background(self):
+        """Загрузить фон кнопок магазина"""
+        try:
+            return pygame.image.load(SHOP_BUTTON_BACKGROUND_PATH).convert_alpha()
+        except Exception:
+            return None
+
     def update_shop_buttons(self):
         """Обновить текст всех кнопок магазина"""
         for button in self.shop_upgrade_buttons:
@@ -218,8 +338,6 @@ class ScreenManager: #класс для отрисовки кнопок
 
 
     
-    # def handle_back_event(self, event):
-    #     #"""Обработка событий для кнопки назад"""
-    #     return self.Back_Key.handle_event(event)
+    
 
     

@@ -32,10 +32,24 @@ WORLD_HEIGHT = 1800
 GROUND_SPRITE_PATH = "./Poly/sprites/ground.webp"
 
 # ==================== Спавн врагов ===================
-SPAWN_DELAY = 1.0
+SPAWN_DELAY = 2
 MAX_ENEMIES = 1000
 
 # ==================== Ивенты ====================
+"""
+time - время через которое произойдет ивент; 
+count - количество врагов; которые заспавнятся во время ивента; 
+radius - радиус кольца; 
+speed_multiplier - скорость врагов в ивенте;
+repeat - если true включает зацикливание ивента через interval времени.
+"""
 RING_EVENTS = [
-    {"time": 15.0, "count": 12, "radius": 300, "speed_multiplier":0.5}, #time - через какое время, count - количество врагов, radius - радиус кольца
+    # Повторяющееся кольцо каждые 10 секунд (слабое, но часто)
+    {"time": 10.0, "count": 8, "radius": 800, "speed_multiplier": 0.5, "repeat": True, "interval": 10.0},
+    
+    # Повторяющееся кольцо каждые 60 секунд (среднее)
+    {"time": 30.0, "count": 12, "radius": 1000, "speed_multiplier": 0.7, "repeat": True, "interval": 60.0},
+    
+    # Повторяющееся кольцо каждые 120 секунд (сильное, но реже)
+    {"time": 60.0, "count": 16, "radius": 1500, "speed_multiplier": 1.0, "repeat": True, "interval": 120.0},
 ]

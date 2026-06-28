@@ -1,4 +1,3 @@
-# Events/EventManager.py
 """
 Менеджер ивентов — управляет всеми событиями по таймеру
 """
@@ -22,7 +21,7 @@ class EventManager:
         self.events.extend(events)
     
     def clear(self):
-        #Очищает все ивенты
+        """Очищает все ивенты"""
         self.events.clear()
         self.game_time = 0.0
     
@@ -30,7 +29,7 @@ class EventManager:
         #Сбрасывает время и помечает все ивенты как невыполненные
         self.game_time = 0.0
         for event in self.events:
-            event.executed = False
+            event.reset()
     
     def update(self, dt: float, game_field):
         """

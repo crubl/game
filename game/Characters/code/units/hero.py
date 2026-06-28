@@ -121,12 +121,12 @@ class Warrior(Unit):
         # Например, можно установить флаг, но проверка здоровья в Game уже обрабатывает смерть
         pass
 
-    def loadAttackParts(self):
-        self.attackParts = []
-        for i in range(1, 5):
-            path = f"sprites/attack_slice_{i}.png"
-            img = pg.image.load(path).convert_alpha()
-            self.attackParts.append(img)
+    # def loadAttackParts(self):
+    #     self.attackParts = []
+    #     for i in range(1, 5):
+    #         path = f"sprites/attack_slice_{i}.png"
+    #         img = pg.image.load(path).convert_alpha()
+    #         self.attackParts.append(img)
 
     def move(self, dt):
         keys = pg.key.get_pressed()

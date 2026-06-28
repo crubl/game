@@ -5,7 +5,7 @@ from .slashEffects import SlashEffect
 class Sword(Weapon):
     def __init__(self, owner):
         super().__init__(owner)
-        self.damage = 80
+        self.damage = 150
         self.critChance = 0.1
         self.critMultiplier = 1.8
         self.cooldown = 0.6

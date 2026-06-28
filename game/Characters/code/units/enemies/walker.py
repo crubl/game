@@ -52,7 +52,7 @@ class Walker(Unit):
         self.rect = self.image.get_rect(center=(x, y))
 
         # ===== Характеристики =====
-        self.maxHealth = 1500
+        self.maxHealth = 200
         self.health = self.maxHealth
         self.speed = 150
         self.damage = 80

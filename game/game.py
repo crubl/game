@@ -66,7 +66,6 @@ class Game:
         
         if os.path.exists(music_path):
             self.menu_music_path = music_path
-            print(f"✅ Музыка найдена!")
             self.music_on = True
         else:
             self.menu_music_path = None
@@ -80,7 +79,6 @@ class Game:
             pg.mixer.music.load(self.menu_music_path)
             pg.mixer.music.set_volume(0.3)  # Громкость 30%
             pg.mixer.music.play(-1)  # Бесконечное повторение
-            print("Музыка меню запущена")
         except Exception as e:
             self.music_on = False
 

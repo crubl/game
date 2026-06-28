@@ -51,9 +51,9 @@ class Game:
         """Инициализация аудио"""
         try:
             pg.mixer.init()
-            print("Аудио инициализировано")
+            
         except Exception as e:
-            print(f"Ошибка инициализации аудио: {e}")
+            
             self.music_on = False
 
     def load_menu_music(self):
@@ -63,7 +63,6 @@ class Game:
         
         music_path = os.path.join(current_dir, "Main_menu", "sounds", "menu_music.mp3")
         
-        print(f"Ищем музыку по пути: {music_path}")
         
         if os.path.exists(music_path):
             self.menu_music_path = music_path
@@ -71,7 +70,6 @@ class Game:
             self.music_on = True
         else:
             self.menu_music_path = None
-            print(f"❌ Файл не найден: {music_path}")
             self.music_on = False
 
     def start_menu_music(self):
@@ -84,7 +82,6 @@ class Game:
             pg.mixer.music.play(-1)  # Бесконечное повторение
             print("Музыка меню запущена")
         except Exception as e:
-            print(f"Не удалось запустить музыку: {e}")
             self.music_on = False
 
     def toggle_music(self):
@@ -92,10 +89,8 @@ class Game:
         self.music_on = not self.music_on
         if self.music_on:
             self.start_menu_music()
-            print("Музыка включена")
         else:
             pg.mixer.music.stop()
-            print("Музыка выключена") 
 
     def start_game(self):
         self.game_field = GameField(self.screen)

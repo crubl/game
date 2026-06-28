@@ -51,6 +51,7 @@ class Game:
         )
         self.game_field.set_player(self.hero)
         self.game_field.creatMap(self.hero)
+        self.shop.set_hero(self.hero)
 
         self.screen_manager.set_shop(self.shop)
         self.screen_manager.create_shop_buttons(self.shop)
@@ -96,6 +97,12 @@ class Game:
                         self.stop_game()
                     elif event.key == pg.K_p:          # <-- ПАУЗА по клавише P
                         self.paused = not self.paused
+                    elif event.key == pg.K_F5:
+                        if self.shop is not None:
+                            self.shop.reset()
+                            self.shop.save()
+                            if self.hero is not None:
+                                self.shop.apply_upgrades_to_hero(self.hero)
 
                 if self.game_field:
                     self.game_field.handle_events()

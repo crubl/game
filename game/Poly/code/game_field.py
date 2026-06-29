@@ -59,7 +59,9 @@ class GameField:
                 enemy_count=event_config["count"],
                 radius=event_config["radius"],
                 enemy_class=Walker,
-                speed_multiplier=event_config.get("speed_multiplier", 1.0)
+                speed_multiplier=event_config.get("speed_multiplier", 1.0),
+                repeat=event_config.get("repeat", False),
+                interval=event_config.get("interval", 0)
             )
             self.event_manager.add_event(ring_event)
         
@@ -180,7 +182,7 @@ class GameField:
             
             self.spawn_timer += dt
             if self.spawn_timer >= self.spawn_delay:
-                self.spawn_timer = 0
+                self.spawn_timer -= self.spawn_delay
                 self.spawn_enemy()
             
             for enemy in self.enemies[:]:

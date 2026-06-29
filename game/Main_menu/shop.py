@@ -78,22 +78,7 @@ class Shop:
         # Применяем улучшение к герою
         increase = self.upgrades_info[upgrade_name]['increase']
         
-        #if upgrade_name == 'speed':
-        #    self.hero.speed += increase
-        #elif upgrade_name == 'health':
-        #    self.hero.max_health += increase
-        #    self.hero.health = self.hero.max_health
-        #elif upgrade_name == 'damage':
-        #    self.hero.damage += increase
-        #elif upgrade_name == 'crit_damage':
-        #    self.hero.critMod += increase
-        #elif upgrade_name == 'crit_chance':
-        #    self.hero.critChance += increase
-        #elif upgrade_name == 'exp':
-         #   self.hero.exp_multiplier += increase
-        
-        # Устанавливаем сообщение
-        #self.message = f"Улучшение {self.upgrades_info[upgrade_name]['name']} успешно!"
+       
         self.message = f"Улучшение {self.upgrades_info[upgrade_name]['name']} куплено! (Уровень {self.upgrades[upgrade_name]}/{self.max_upgrade})"
         self.message_timer = 120
 
@@ -167,3 +152,11 @@ class Shop:
         self.coins = 10000
         self.message = ""
         self.message_timer = 0
+
+    def add_coins(self, amount):
+        """Добавить монеты и сохранить"""
+        self.coins += amount
+        self.save()
+        return self.coins
+
+        

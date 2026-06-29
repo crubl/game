@@ -66,7 +66,7 @@ class Game:
         
         if os.path.exists(music_path):
             self.menu_music_path = music_path
-            print(f"✅ Музыка найдена!")
+            
             self.music_on = True
         else:
             self.menu_music_path = None
@@ -93,7 +93,9 @@ class Game:
             pg.mixer.music.stop()
 
     def start_game(self):
-        self.game_field = GameField(self.screen)
+        self.game_field = GameField(self.screen, self.shop)
+        self.game_field.set_shop(self.shop)
+        
         self.hero = Warrior(
             self.game_field.world_width // 2,
             self.game_field.world_height // 2,

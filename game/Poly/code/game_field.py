@@ -9,11 +9,13 @@ from Events.EventManager import EventManager
 from Events.RingSpawnEvent import RingSpawnEvent
 from constans import RING_EVENTS
 
+
 class GameField:
     """Игровое поле — управляет камерой, игроком, врагами и спавном"""
     
-    def __init__(self, screen):
+    def __init__(self, screen, shop = None):
         self.screen = screen
+        self.shop = shop
         self.clock = pg.time.Clock()
         self.running = True
         
@@ -184,6 +186,7 @@ class GameField:
             for enemy in self.enemies[:]:
                 enemy.update(dt)
                 if enemy.health <= 0:
+                    self.shop.add_coins(10)
                     self.enemies.remove(enemy)
             
             if hasattr(self.player, 'weapon') and self.player.weapon:
@@ -271,4 +274,9 @@ class GameField:
                     self.show_debug = not self.show_debug
                 elif event.key == pg.K_F2:
                     self.show_grid = not self.show_grid
+
+    def set_shop(self, shop):
+        """Установить магазин"""
+        self.shop = shop
+        print(f"Shop установлен в GameField")
     
